@@ -1,20 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
 
-import { StyleSheet, Text, SafeAreaView, View, Pressable, TextInput, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, View, Pressable, TextInput, FlatList, ActivityIndicator} from 'react-native';
 
-import Diario from './components/Diario';
+import Diario from './pages/Diario';
 
 import { AntDesign } from '@expo/vector-icons';
 
 import { useState,useEffect } from 'react';
 
-import {db, collection, addDoc, getDocs} from './firebase/index'
+import {db, collection, addDoc, getDocs,deleteDoc,doc} from './firebase/firebase'
 
 
 export default function App() {
  
  
-
     const [title,setTitle] = useState("");
     const [mostraDiario,setMostraDiario] = useState([]);
  
@@ -40,6 +39,14 @@ export default function App() {
       setMostraDiario(querySnapshot.docs.map((doc)=>({...doc.data(),id: doc.id})));
     };
 
+    const deleteDiariocolection = async() =>{
+      const querySnapshot = await getDocs(collection(db, "diario"));
+     
+      querySnapshot.docs.map((item)=> deleteDoc(doc(db, "diario", item.id)));
+      getmostrarDiarios();
+
+    }
+
     useEffect(() => {
 
       getmostrarDiarios();
@@ -48,36 +55,44 @@ export default function App() {
 
     return (
     <SafeAreaView style={styles.container}>
-
+          
           <View style={styles.header}>
 
-              <Text style={styles.heading}> Meu Diario de React Native</Text>
+              <Text style={styles.heading}>Diario Pessoal</Text>
 
 
-              <Text style={styles.noOfItens}> 0 </Text>
+              <Text style={styles.noOfItens}> {mostraDiario.length} </Text>
 
-              <Pressable>
+
+
+              <Pressable onPress={deleteDiariocolection}>
             
             <AntDesign name="delete" size={24} color="black" />
            
             </Pressable>
 
           </View>
-
-              {
-             
-               <FlatList
+          {
+              mostraDiario.length > 0 ?(
             
-                data ={getmostrarDiarios}
-                renderItem={({item}) => 
-                <View> <Text>title={item.title}</Text> </View> }
-                keyExtractor={(item) => item.id}
-                />
-              
-        :(
-                <ActivityIndicator/>
-              )
-              }
+            <FlatList
+            
+            data={mostraDiario}
+            
+            renderItem={({item})=>(
+             <Diario
+              title={item.title} 
+              isChecked={item.isChecked}
+              id={item.id}
+              getmostrarDiarios={getmostrarDiarios}/>
+            )}
+            keyExtractor={item => item.id}
+              />
+            ):(
+            
+              <ActivityIndicator/>
+             )}
+
 
            
             <TextInput placeholder="Escreva suas lembranças"
@@ -108,25 +123,30 @@ const styles = StyleSheet.create({
       padding:10,
       justifyContent:'space-between',
       alignItems:'center',
-      marginBottom:10
+      marginBottom:10,
+      marginTop:20
+      
   },
   heading:{
       fontSize:30,
       fontWeight:'500',
       flex:1,
+      color:'#4169E1',
   },
   noOfItens:{
       fontSize:30,
       fontWeight:'500',
       marginRight:20,
+      color:'#4169E1',
   },
   input:{
-    backgroundColor:'lightgray',
+    backgroundColor:'#40E0D0',
     padding:10,
     fontSize:17,
     width:'%90',
     alignSelf:'center',
     borderRadius:10,
     marginTop: 'auto',
+    marginBottom:10
   }
 });
