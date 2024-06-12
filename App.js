@@ -1,19 +1,18 @@
 import React from "react";
-import { StyleSheet,Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from "./Screen/Home";
+import MovieList from "./Screen/MovieList";
 import LoginScreen from "./Screen/Login";
 
         const Stack = createNativeStackNavigator();
 
-export default functionApp()
+export default function App()
 {
     return(
 
         <NavigationContainer>
-                <Stack.Navigator>
-                      <Stack.Screen  name="Home" component={HomeScreen}/>
+                <Stack.Navigator initialRouteName="Login">
+                      <Stack.Screen  name="Movie" component={MovieList}/>
                       <Stack.Screen  options={{headesShown: false}} name="Login" component={LoginScreen}/>
                  </Stack.Navigator>
          </NavigationContainer>

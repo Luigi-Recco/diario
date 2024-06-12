@@ -1,31 +1,82 @@
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, StyleSheet,Text, TextInput, TouchableOpacity, View } from "react-native";
-
+import React, { useState,useEffect } from 'react';
+import { KeyboardAvoidingView, Pressable, StyleSheet,Text, TextInput, View } from "react-native";
+import {app, db, getFirestore, collection, addDoc, getDocs} from '../firebase/firebase';
+import { ActivityIndicator, FlatList } from 'react-native-web';
+import MovieList from './MovieList';
 const LoginScreen = () =>{
 
-        const [email,setEmail] = useState('');
-        const [password,setPassword] = useState('');
+        const [title,setTitle] = useState('');
+        const [description,setDescription] = useState('');
+        const [MovieList, setMovieList] = useState([]);
 
-    return(
+
+        const addMovie = async()=>{
+                   try {
+                 const docRef = await addDoc(collection(db, "movies"), {
+                        title:title,
+                        description:description
+                     });
+                console.log("Document written with ID: ", docRef.id);
+                setTitle("");
+                setDescription("");
+                } catch (e) {
+                console.error("Error adding document: ", e);
+                }
+                readMovie();
+                        };
+
+        const readMovie = async() =>{
+            const querySnapshot = await getDocs(collection(db, "movies"));
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.id,doc.data());
+                    setMovieList({
+                        ...doc.data(),
+                        id:doc.id,
+                            });
+                        });
+        }
+
+        useEffect(() => {
+                readMovie();
+        }, [])
+
+        return(
+
         <KeyboardAvoidingView
         style={styles.container}
         behavior='padding'>
 
+                    {MovieList.length > 0  ?(
+                    
+            
+                    <FlatList
+                        data={MovieList}
+                        renderItem={({item,item2}) => <MovieList title={item.title} 
+                        keyExtractor={item=>item.id}
+                        />}
+                        
+                    />
+                        ):(
+                            <ActivityIndicator/>
+                        )}
+
+
+
                 <View style={styles.inputContainer}> 
 
-                        <TextInput placeholder='Email'
-                        value ={email}
-                        onChange={text => setEmail(text)}
+                        <TextInput placeholder='Nome do Filme'
+                        value ={title}
+                        onChangeText={setTitle}
                         style ={styles.input}
                         >
 
                         </TextInput>
 
-                        <TextInput placeholder='Password'
-                        value ={password}
-                        onChange={text =>setPassword(text)}
+                        <TextInput placeholder='Descrição'
+                        value ={description}
+                        onChangeText={setDescription}
                         style ={styles.input}
-                        secureTextEntry
+                         
                         >
 
                         </TextInput>
@@ -34,23 +85,23 @@ const LoginScreen = () =>{
 
                 <View style={styles.buttonContainer}>
 
-                    <TouchableOpacity
-                    onPress={()=>{}}
-                    style={styles.button}
-                    >
-                      <Text style={styles.buttonText}>Login</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                    onPress={()=>{}}
+                    <Pressable
+                    onPress={addMovie}
                     style={[styles.button, styles.buttonOutline]}
                     >
-                      <Text style={styles.buttonOutlineText}>Register</Text>
-                    </TouchableOpacity>
+                      <Text style={styles.buttonOutlineText}>Registrar</Text>
+                    </Pressable>
 
                 </View>
 
         </KeyboardAvoidingView>
+
+           
+                
+
+
+
+
     );
 }
 
@@ -76,15 +127,16 @@ const styles = StyleSheet.create({
             width:'60%',
             justifyContent:'center',
             alignItems:'center',
-            marginTop:40
+            marginTop:40,
+    
         },
         button:{
                 backgroundColor:'#0782F9',
                 width:'100%',
                 padding:15,
                 borderRadius: 10,
-                alignItems:'center'
-        },
+                alignItems:'center',
+            },
         buttonText:{
                 color:'white',
                 fontWeight:'700',
@@ -100,6 +152,12 @@ const styles = StyleSheet.create({
             color:'#0782F9',
             fontWeight:'700',
             fontSize:16,
+        },
+        title:{
+            textAlign:'center',
+            fontSize:20,
+            fontWeight:20,
+            marginBottom:60
         }
 
 })
