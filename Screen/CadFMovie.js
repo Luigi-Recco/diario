@@ -1,13 +1,12 @@
-import React, { useState,useEffect } from 'react';
-import { KeyboardAvoidingView, Pressable, StyleSheet,Text, TextInput, View } from "react-native";
-import {app, db, getFirestore, collection, addDoc, getDocs} from '../firebase/firebase';
-import { ActivityIndicator, FlatList } from 'react-native-web';
-import MovieList from './MovieList';
-const LoginScreen = () =>{
+import React, { useState } from 'react';
+import {  Pressable, StyleSheet,Text, TextInput, View } from "react-native";
+import { db,  collection, addDoc, getDocs} from '../firebase/firebase';
+const CadScreen = () =>{
 
         const [title,setTitle] = useState('');
         const [description,setDescription] = useState('');
-        const [MovieList, setMovieList] = useState([]);
+        const [pasta,setPasta] = useState('');
+
 
 
         const addMovie = async()=>{
@@ -16,54 +15,64 @@ const LoginScreen = () =>{
                         title:title,
                         description:description
                      });
-                console.log("Document written with ID: ", docRef.id);
+                console.log("ID do bagulho ", docRef.id);
                 setTitle("");
                 setDescription("");
                 } catch (e) {
                 console.error("Error adding document: ", e);
                 }
-                readMovie();
+                // readMovie();
                         };
 
-        const readMovie = async() =>{
-            const querySnapshot = await getDocs(collection(db, "movies"));
-                querySnapshot.forEach((doc) => {
-                    console.log(doc.id,doc.data());
-                    setMovieList({
-                        ...doc.data(),
-                        id:doc.id,
-                            });
-                        });
-        }
+        // const readMovie = async() =>{
+        //     const querySnapshot = await getDocs(collection(db, "movies"));
+        //     const lista = [];
+        //         querySnapshot.forEach((doc) => {
+        //             console.log(doc.id,doc.data());
+        //             lista.push({
+        //                 ...doc.data(),
+        //                 id:doc.id,
+        //                     });
+        //                     setMovieList(lista)
+        //                 });
+        // }
 
-        useEffect(() => {
-                readMovie();
-        }, [])
+        // useEffect(() => {
+        //         readMovie();
+        // }, [])
 
         return(
 
-        <KeyboardAvoidingView
+    <View
         style={styles.container}
-        behavior='padding'>
+        >
+                          
+     
 
-                    {MovieList.length > 0  ?(
-                    
-            
+{/*           
                     <FlatList
                         data={MovieList}
-                        renderItem={({item,item2}) => <MovieList title={item.title} 
-                        keyExtractor={item=>item.id}
-                        />}
-                        
-                    />
-                        ):(
-                            <ActivityIndicator/>
-                        )}
+                        renderItem={({item}) => {
+                        return(
+                        <View>
 
+                        <Text > {item.tile} </Text>
+        
+                        <Text >{item.description}</Text>
+
+            </View>)
+                        
+                    }}
+                
+                    /> */}
+
+
+                     
 
 
                 <View style={styles.inputContainer}> 
 
+                                
                         <TextInput placeholder='Nome do Filme'
                         value ={title}
                         onChangeText={setTitle}
@@ -81,6 +90,7 @@ const LoginScreen = () =>{
 
                         </TextInput>
 
+
                 </View>
 
                 <View style={styles.buttonContainer}>
@@ -94,7 +104,7 @@ const LoginScreen = () =>{
 
                 </View>
 
-        </KeyboardAvoidingView>
+        </View>
 
            
                 
@@ -105,7 +115,7 @@ const LoginScreen = () =>{
     );
 }
 
-export default LoginScreen
+export default CadScreen
 const styles = StyleSheet.create({
 
     container:{
