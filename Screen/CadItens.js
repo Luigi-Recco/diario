@@ -1,45 +1,58 @@
-import React, { useState } from 'react';
-import {  Pressable, StyleSheet,Text, TextInput, View } from "react-native";
-import { db,  collection, addDoc, getDocs} from '../firebase/firebase';
+import React, { useState,useEffect } from 'react';
+import {  Pressable, StyleSheet,Text, TextInput, View,FlatList } from "react-native";
+import { db,doc,  collection, addDoc, getDocs, deleteDoc} from '../firebase/firebase';
+import Itens from './Itens';
+
 const CadScreen = () =>{
 
-        const [title,setTitle] = useState('');
+
+
         const [description,setDescription] = useState('');
-        const [pasta,setPasta] = useState('');
+        const [ListadeCompra, setListadeCompra] = useState([]);
 
 
-
-        const addMovie = async()=>{
+        const addLista = async()=>{
                    try {
-                 const docRef = await addDoc(collection(db, "movies"), {
-                        title:title,
-                        description:description
+                 const docRef = await addDoc(collection(db, "ListaDeCompra"), {
+                        description:description,
+                        feito:false
                      });
                 console.log("ID do bagulho ", docRef.id);
-                setTitle("");
                 setDescription("");
                 } catch (e) {
                 console.error("Error adding document: ", e);
                 }
-                // readMovie();
+                readLista();
+
                         };
 
-        // const readMovie = async() =>{
-        //     const querySnapshot = await getDocs(collection(db, "movies"));
-        //     const lista = [];
-        //         querySnapshot.forEach((doc) => {
-        //             console.log(doc.id,doc.data());
-        //             lista.push({
-        //                 ...doc.data(),
-        //                 id:doc.id,
-        //                     });
-        //                     setMovieList(lista)
-        //                 });
-        // }
+       
 
-        // useEffect(() => {
-        //         readMovie();
-        // }, [])
+        const readLista = async() =>{
+            const querySnapshot = await getDocs(collection(db, "ListaDeCompra"));
+            const lista = [];
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.id,doc.data());
+                    lista.push({
+                        ...doc.data(),
+                        id:doc.id,
+                            });
+                            setListadeCompra(lista)
+                        });
+        }
+
+        const deleteItensLista = async()=>{
+            const querySnapshot = await getDocs(collection(db, "ListaDeCompra"));
+
+            querySnapshot.docs.map((item)=>deleteDoc(doc(db,"ListaDeCompra",item.id)));
+            readLista();
+        }
+
+        useEffect(() => {
+           
+            readLista();
+
+        }, []);
 
         return(
 
@@ -49,22 +62,23 @@ const CadScreen = () =>{
                           
      
 
-{/*           
+          
                     <FlatList
-                        data={MovieList}
+                        data={ListadeCompra}
                         renderItem={({item}) => {
                         return(
-                        <View>
-
-                        <Text > {item.tile} </Text>
-        
-                        <Text >{item.description}</Text>
-
-            </View>)
+                            <Itens
+                                description={item.description}
+                                feito={item.feito}
+                                id={item.id}
+                                readLista = {readLista}
+                            />
+                            )
                         
                     }}
+                    keyExtractor={(item) => item.id}
                 
-                    /> */}
+                    />
 
 
                      
@@ -73,35 +87,35 @@ const CadScreen = () =>{
                 <View style={styles.inputContainer}> 
 
                                 
-                        <TextInput placeholder='Nome do Filme'
-                        value ={title}
-                        onChangeText={setTitle}
-                        style ={styles.input}
-                        >
-
-                        </TextInput>
-
-                        <TextInput placeholder='Descrição'
+                        <TextInput placeholder='Suas compras'
                         value ={description}
                         onChangeText={setDescription}
                         style ={styles.input}
-                         
                         >
 
                         </TextInput>
 
+                       
 
                 </View>
 
                 <View style={styles.buttonContainer}>
 
                     <Pressable
-                    onPress={addMovie}
+                    onPress={addLista}
                     style={[styles.button, styles.buttonOutline]}
                     >
                       <Text style={styles.buttonOutlineText}>Registrar</Text>
                     </Pressable>
+                    
+                    <Pressable
+                    onPress={deleteItensLista}
+                    style={[styles.button, styles.buttonOutline]}>
+                          
+                        <Text style={styles.buttonOutlineText}>Deletar todas as compras</Text>
+                    </Pressable>
 
+                    
                 </View>
 
         </View>
