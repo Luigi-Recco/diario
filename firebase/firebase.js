@@ -1,6 +1,8 @@
 import { initializeApp } from "firebase/app";
 import {getFirestore ,collection, addDoc, getDocs,updateDoc,deleteDoc ,doc } from "firebase/firestore"; 
-
+import {getStorage} from "firebase/storage";
+import firebase from 'firebase/compat/app'
+import 'firebase/compat/storage'
 
 const firebaseConfig = {
   apiKey: "AIzaSyBnuFHZbC6oeOMgZdoTG_HL4cbs9rWrIpU",
@@ -13,5 +15,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-export {app, db, getFirestore, collection, addDoc, getDocs,updateDoc,deleteDoc ,doc};
+if(!firebase.apps.length)
+{
+  firebase.initializeApp(firebaseConfig)
+}
+
+export { firebase }
+
+export {app, db, storage, getFirestore, collection, addDoc, getDocs,updateDoc,deleteDoc ,doc};
